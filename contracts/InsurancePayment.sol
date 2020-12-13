@@ -60,25 +60,6 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
         nextMarketCapPollTime = startTime.add(EPOCH_PERIOD);
     }
 
-    // struct TransactionProposal {
-    //     uint availableTime;
-
-    //     address to;
-    //     uint value;
-    //     bytes data;
-    // }
-
-    // event TransactionProposed(
-    //     bytes32 indexed proposalHash,
-    //     uint indexed availableTime,
-    //     address indexed to,
-    //     uint value,
-    //     bytes data,
-    //     FixedProductMarketMaker fpmm
-    // );
-
-    // mapping (bytes32 => FixedProductMarketMaker) proposedTransactions;
-
     function propose(TransactionProposal calldata proposal) external payable {
         bytes32 proposalHash = keccak256(abi.encode(proposal));
 
@@ -139,13 +120,6 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
             fpmm
         );
     }
-
-    // event TransactionProposalResolved(
-    //     bytes32 indexed proposalHash,
-    //     uint indexed availableTime,
-    //     address indexed to,
-    //     bool executed
-    // );
 
     function payOrDoNotPay(TransactionProposal calldata proposal) external payable {
         bytes32 proposalHash = keccak256(abi.encode(proposal));
@@ -219,12 +193,6 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
             execute
         );
     }
-
-    // event EpochPassed(
-    //     uint indexed epochEndTime,
-    //     uint timeResolved,
-    //     uint resultStonkPrice
-    // );
 
     function poke() external payable {
         uint[] memory payouts = new uint[](2);
