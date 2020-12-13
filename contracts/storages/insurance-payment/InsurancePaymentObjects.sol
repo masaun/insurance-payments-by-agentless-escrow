@@ -3,7 +3,7 @@ pragma experimental ABIEncoderV2;
 
 contract InsurancePaymentObjects {
 
-    struct TransactionProposal {
+    struct TransactionClaim {
         uint availableTime;
 
         address to;

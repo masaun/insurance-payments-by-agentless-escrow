@@ -8,6 +8,6 @@ import { FixedProductMarketMaker } from "@gnosis.pm/conditional-tokens-market-ma
 
 contract InsurancePaymentStorages is InsurancePaymentObjects {
 
-    mapping (bytes32 => FixedProductMarketMaker) proposedTransactions;
+    mapping (bytes32 => FixedProductMarketMaker) claimedTransactions;
 
 }

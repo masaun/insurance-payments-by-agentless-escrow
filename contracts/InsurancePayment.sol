@@ -22,14 +22,13 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
     string public constant symbol = "INSUPAY";
     uint public constant decimals = 18;
 
-    WETH9 public weth;
-
+    /// [Note]: Uniswap V1
     IUniswapFactory public uniswapFactory;
     IUniswapExchange public uniswapExchange;
 
     ConditionalTokens public conditionalTokens;
-
     FPMMDeterministicFactory public fpmmFactory;
+    WETH9 public weth;
 
     uint constant START_AMOUNT = 1 ether;
     uint public constant EPOCH_PERIOD = 10;
@@ -47,7 +46,7 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
     }
 
     /***
-     * @notice - Set up
+     * @notice - Set up with Uniswap V1
      **/
     function setup() external payable {
         require(address(uniswapExchange) == address(0), "already setup");
@@ -65,39 +64,39 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
 
 
     /***
-     * @notice - Propose
+     * @notice - Claim a insurance payment
      **/
-    function propose(TransactionProposal calldata proposal) external payable {
-        bytes32 proposalHash = keccak256(abi.encode(proposal));
+    function claim(TransactionClaim calldata claim) external payable {
+        bytes32 claimHash = keccak256(abi.encode(claim));
 
         require(
-            proposedTransactions[proposalHash] == FixedProductMarketMaker(0),
-            "transaction already proposed"
+            claimedTransactions[claimHash] == FixedProductMarketMaker(0),
+            "transaction already claimed"
         );
 
         require(
-            proposal.availableTime.sub(startTime, "proposal time must be after") % EPOCH_PERIOD == 0,
-            "proposal available time must be aligned"
+            claim.availableTime.sub(startTime, "claim time must be after") % EPOCH_PERIOD == 0,
+            "claim available time must be aligned"
         );
 
         require(
-            proposal.availableTime > block.timestamp + EPOCH_PERIOD,
-            "proposal must have an epoch for deciding"
+            claim.availableTime > block.timestamp + EPOCH_PERIOD,
+            "claim must have an epoch for deciding"
         );
 
-        conditionalTokens.prepareCondition(address(this), proposalHash, 2);
-        bytes32 txConditionId = keccak256(abi.encodePacked(address(this), proposalHash, uint(2)));
+        conditionalTokens.prepareCondition(address(this), claimHash, 2);
+        bytes32 txConditionId = keccak256(abi.encodePacked(address(this), claimHash, uint(2)));
 
         bytes32 pollConditionId = CTHelpers.getConditionId(
             address(this),
-            bytes32(proposal.availableTime.add(EPOCH_PERIOD)),
+            bytes32(claim.availableTime.add(EPOCH_PERIOD)),
             2
         );
 
         if (conditionalTokens.getOutcomeSlotCount(pollConditionId) == 0) {
             conditionalTokens.prepareCondition(
                 address(this),
-                bytes32(proposal.availableTime.add(EPOCH_PERIOD)),
+                bytes32(claim.availableTime.add(EPOCH_PERIOD)),
                 2
             );
         }
@@ -116,14 +115,14 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
             new uint[](0)
         );
 
-        proposedTransactions[proposalHash] = fpmm;
+        claimedTransactions[claimHash] = fpmm;
 
-        emit TransactionProposed(
-            proposalHash,
-            proposal.availableTime,
-            proposal.to,
-            proposal.value,
-            proposal.data,
+        emit TransactionClaimed(
+            claimHash,
+            claim.availableTime,
+            claim.to,
+            claim.value,
+            claim.data,
             fpmm
         );
     }
@@ -132,10 +131,10 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
     /***
      * @notice - Judge whether it pay or do not pay
      **/
-    function payOrDoNotPay(TransactionProposal calldata proposal) external payable {
-        bytes32 proposalHash = keccak256(abi.encode(proposal));
+    function payOrDoNotPay(TransactionClaim calldata claim) external payable {
+        bytes32 claimHash = keccak256(abi.encode(claim));
 
-        FixedProductMarketMaker fpmm = proposedTransactions[proposalHash];
+        FixedProductMarketMaker fpmm = claimedTransactions[claimHash];
 
         require(fpmm != FixedProductMarketMaker(0), "transaction missing");
 
@@ -143,11 +142,11 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
         {
             uint[] memory positionIds = new uint[](4);
             {
-                bytes32 txConditionId = keccak256(abi.encodePacked(address(this), proposalHash, uint(2)));
+                bytes32 txConditionId = keccak256(abi.encodePacked(address(this), claimHash, uint(2)));
 
                 bytes32 pollConditionId = CTHelpers.getConditionId(
                     address(this),
-                    bytes32(proposal.availableTime.add(EPOCH_PERIOD)),
+                    bytes32(claim.availableTime.add(EPOCH_PERIOD)),
                     2
                 );
 
@@ -186,21 +185,21 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
         if (execute) {
             // do
             payouts[0] = 1; payouts[1] = 0;
-            conditionalTokens.reportPayouts(proposalHash, payouts);
-            (bool success, bytes memory retdata) = proposal.to.call.value(proposal.value)(proposal.data);
+            conditionalTokens.reportPayouts(claimHash, payouts);
+            (bool success, bytes memory retdata) = claim.to.call.value(claim.value)(claim.data);
             require(success, string(retdata));
         } else {
             // do not
             payouts[0] = 0; payouts[1] = 1;
-            conditionalTokens.reportPayouts(proposalHash, payouts);
+            conditionalTokens.reportPayouts(claimHash, payouts);
         }
 
-        delete proposedTransactions[proposalHash];
+        delete claimedTransactions[claimHash];
 
-        emit TransactionProposalResolved(
-            proposalHash,
-            proposal.availableTime,
-            proposal.to,
+        emit TransactionClaimResolved(
+            claimHash,
+            claim.availableTime,
+            claim.to,
             execute
         );
     }
