@@ -26,7 +26,7 @@
     "ethereumjs-tx": "^2.1.2",
 
     "@gnosis.pm/conditional-tokens-contracts": "^1.0.1",
-    "@gnosis.pm/conditional-tokens-market-makers": "github:gnosis/conditional-tokens-market-makers#modify-fees",    
+    "@gnosis.pm/conditional-tokens-market-makers": "github:gnosis/conditional-tokens-market-makers",
     "project-name": "github:PhABC/uniswap-solidity"
   },
   "devDependencies": {}
