@@ -46,6 +46,9 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
         fpmmFactory = _fpmmFactory;
     }
 
+    /***
+     * @notice - Set up
+     **/
     function setup() external payable {
         require(address(uniswapExchange) == address(0), "already setup");
         address payable exchange = uniswapFactory.createExchange(address(this));
@@ -60,6 +63,10 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
         nextMarketCapPollTime = startTime.add(EPOCH_PERIOD);
     }
 
+
+    /***
+     * @notice - Propose
+     **/
     function propose(TransactionProposal calldata proposal) external payable {
         bytes32 proposalHash = keccak256(abi.encode(proposal));
 
@@ -121,6 +128,10 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
         );
     }
 
+
+    /***
+     * @notice - Judge whether it pay or do not pay
+     **/
     function payOrDoNotPay(TransactionProposal calldata proposal) external payable {
         bytes32 proposalHash = keccak256(abi.encode(proposal));
 
@@ -194,6 +205,10 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
         );
     }
 
+
+    /***
+     * @notice - Poke for result
+     **/
     function poke() external payable {
         uint[] memory payouts = new uint[](2);
         address exchange = address(uniswapExchange);
@@ -228,5 +243,9 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
         lastStonkPrice = currentStonkPrice;
     }
 
+
+    /***
+     * @notice - Works for payable
+     **/
     function() external payable {}
 }
