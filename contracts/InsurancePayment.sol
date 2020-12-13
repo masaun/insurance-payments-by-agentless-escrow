@@ -143,7 +143,7 @@ contract InsurancePayment is ERC20 {
         bool executed
     );
 
-    function doOrDoNot(TransactionProposal calldata proposal) external payable {
+    function payOrDoNotPay(TransactionProposal calldata proposal) external payable {
         bytes32 proposalHash = keccak256(abi.encode(proposal));
 
         FixedProductMarketMaker fpmm = proposedTransactions[proposalHash];
