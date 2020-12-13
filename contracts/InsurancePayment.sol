@@ -14,8 +14,8 @@ import { WETH9 } from "canonical-weth/contracts/WETH9.sol";
 contract InsurancePayment is ERC20 {
     using SafeMath for uint;
 
-    string public constant name = "D Corp Stonk";
-    string public constant symbol = "STONK";
+    string public constant name = "Insurance Payment";
+    string public constant symbol = "INSUPAY";
     uint public constant decimals = 18;
 
     WETH9 public weth;
@@ -27,7 +27,7 @@ contract InsurancePayment is ERC20 {
 
     FPMMDeterministicFactory public fpmmFactory;
 
-    uint constant START_AMOUNT = 100 ether;
+    uint constant START_AMOUNT = 1 ether;
     uint public constant EPOCH_PERIOD = 10;
     uint constant FPMM_FEE = 0.01 ether;
 
