@@ -1,6 +1,9 @@
 pragma solidity >=0.5.0 <0.7.0;
 pragma experimental ABIEncoderV2;
 
+import { InsurancePaymentStorages } from "./storages/insurance-payment/InsurancePaymentStorages.sol";
+import { InsurancePaymentEvents } from "./storages/insurance-payment/InsurancePaymentEvents.sol";
+
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { IUniswapFactory } from "project-name/contracts/interfaces/IUniswapFactory.sol";
@@ -11,11 +14,12 @@ import { FixedProductMarketMaker } from "@gnosis.pm/conditional-tokens-market-ma
 import { FPMMDeterministicFactory, IERC20 } from "@gnosis.pm/conditional-tokens-market-makers/contracts/FPMMDeterministicFactory.sol";
 import { WETH9 } from "canonical-weth/contracts/WETH9.sol";
 
-contract InsurancePayment is ERC20 {
+
+contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEvents {
     using SafeMath for uint;
 
-    string public constant name = "D Corp Stonk";
-    string public constant symbol = "STONK";
+    string public constant name = "Insurance Payment";
+    string public constant symbol = "INSUPAY";
     uint public constant decimals = 18;
 
     WETH9 public weth;
@@ -27,7 +31,7 @@ contract InsurancePayment is ERC20 {
 
     FPMMDeterministicFactory public fpmmFactory;
 
-    uint constant START_AMOUNT = 100 ether;
+    uint constant START_AMOUNT = 1 ether;
     uint public constant EPOCH_PERIOD = 10;
     uint constant FPMM_FEE = 0.01 ether;
 
@@ -42,6 +46,9 @@ contract InsurancePayment is ERC20 {
         fpmmFactory = _fpmmFactory;
     }
 
+    /***
+     * @notice - Set up
+     **/
     function setup() external payable {
         require(address(uniswapExchange) == address(0), "already setup");
         address payable exchange = uniswapFactory.createExchange(address(this));
@@ -56,25 +63,10 @@ contract InsurancePayment is ERC20 {
         nextMarketCapPollTime = startTime.add(EPOCH_PERIOD);
     }
 
-    struct TransactionProposal {
-        uint availableTime;
 
-        address to;
-        uint value;
-        bytes data;
-    }
-
-    event TransactionProposed(
-        bytes32 indexed proposalHash,
-        uint indexed availableTime,
-        address indexed to,
-        uint value,
-        bytes data,
-        FixedProductMarketMaker fpmm
-    );
-
-    mapping (bytes32 => FixedProductMarketMaker) proposedTransactions;
-
+    /***
+     * @notice - Propose
+     **/
     function propose(TransactionProposal calldata proposal) external payable {
         bytes32 proposalHash = keccak256(abi.encode(proposal));
 
@@ -136,14 +128,11 @@ contract InsurancePayment is ERC20 {
         );
     }
 
-    event TransactionProposalResolved(
-        bytes32 indexed proposalHash,
-        uint indexed availableTime,
-        address indexed to,
-        bool executed
-    );
 
-    function doOrDoNot(TransactionProposal calldata proposal) external payable {
+    /***
+     * @notice - Judge whether it pay or do not pay
+     **/
+    function payOrDoNotPay(TransactionProposal calldata proposal) external payable {
         bytes32 proposalHash = keccak256(abi.encode(proposal));
 
         FixedProductMarketMaker fpmm = proposedTransactions[proposalHash];
@@ -216,12 +205,10 @@ contract InsurancePayment is ERC20 {
         );
     }
 
-    event EpochPassed(
-        uint indexed epochEndTime,
-        uint timeResolved,
-        uint resultStonkPrice
-    );
 
+    /***
+     * @notice - Poke for result
+     **/
     function poke() external payable {
         uint[] memory payouts = new uint[](2);
         address exchange = address(uniswapExchange);
@@ -256,5 +243,9 @@ contract InsurancePayment is ERC20 {
         lastStonkPrice = currentStonkPrice;
     }
 
+
+    /***
+     * @notice - Works for payable
+     **/
     function() external payable {}
 }
