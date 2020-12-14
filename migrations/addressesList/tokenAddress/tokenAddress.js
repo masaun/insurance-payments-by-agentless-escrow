@@ -8,13 +8,9 @@ module.exports = {
         "cWBTC": "0x58145bc5407d63daf226e4870beeb744c588f149",    /// cWBTC address on Ropsten（from Compound）
         "cEther": "0xbe839b6d93e3ea47effcca1f27841c917a8794f3"     /// cEther address on Ropsten（from Compound）
     },
-    "Kovan": {
-        "General": {
-            "DAI": "0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa",     // DAI address on Kovan
-        },
-        "Aave": {  /// Aave Market contracts
-            "DAIaave": "0xFf795577d9AC8bD7D90Ee22b6C1703490b6512FD",  // Aave's DAI address on Kovan            
-            "aDAI": "0x58AD4cB396411B691A9AAb6F74545b2C5217FE6a"  
+    "Goerli": {
+        "UniswapV1": {
+            "UNI_INSUPAY": "0x7f492D48b5829f27A63361fbF5c400012F9C1bB8"
         }
     }
 }
