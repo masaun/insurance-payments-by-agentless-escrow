@@ -18,8 +18,9 @@ import { WETH9 } from "canonical-weth/contracts/WETH9.sol";
 contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEvents {
     using SafeMath for uint;
 
+    /// [Note]: A conditionl token data (as an ERC20 token)
     string public constant name = "Insurance Payment";
-    string public constant symbol = "INSPAY";
+    string public constant symbol = "INSUPAY";
     uint public constant decimals = 18;
 
     /// [Note]: Uniswap V1
