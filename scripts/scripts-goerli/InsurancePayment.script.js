@@ -33,7 +33,15 @@ main();
  * @dev - Unit test
  **/
 async function claim() {  /// [Result]:
-    let inputData1 = await insurancePayment.methods.claim().encodeABI();
+    /// [Note]: This is the TransactionClaim struct (value is empty)
+    let txClaim = {
+        availableTime: 1607933818,                                                  /// [Note]: Current timestamp
+        to: "0x718E3ea0B8C2911C5e54Cb4b9B2075fdd87B55a7",                           /// [Note]: 
+        value: web3.utils.toWei('0.1', 'ether'),                                    /// [Note]: 0.1
+        data: "0x0000000000000000000000000000000000000000000000000000000000000000"  /// [Note]: Data type is bytes32
+    }
+
+    let inputData1 = await insurancePayment.methods.claim(txClaim).encodeABI();
     let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData1);
 }
 
