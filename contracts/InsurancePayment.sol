@@ -32,7 +32,8 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
     WETH9 public weth;
 
     uint constant START_AMOUNT = 1 ether;
-    uint public constant EPOCH_PERIOD = 10;
+    uint public constant EPOCH_PERIOD = 86400;  /// [Note]: 1 day == 86400 second
+    //uint public constant EPOCH_PERIOD = 10;   /// [Note]: 10 second    
     uint constant FPMM_FEE = 0.01 ether;
 
     uint public startTime;
