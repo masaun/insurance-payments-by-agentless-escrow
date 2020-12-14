@@ -6,8 +6,8 @@ import { FixedProductMarketMaker } from "@gnosis.pm/conditional-tokens-market-ma
 
 contract InsurancePaymentEvents {
 
-    event TransactionProposed(
-        bytes32 indexed proposalHash,
+    event TransactionClaimed(
+        bytes32 indexed claimHash,
         uint indexed availableTime,
         address indexed to,
         uint value,
@@ -15,8 +15,8 @@ contract InsurancePaymentEvents {
         FixedProductMarketMaker fpmm
     );
 
-    event TransactionProposalResolved(
-        bytes32 indexed proposalHash,
+    event TransactionClaimResolved(
+        bytes32 indexed claimHash,
         uint indexed availableTime,
         address indexed to,
         bool executed
