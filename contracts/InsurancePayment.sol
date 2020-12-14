@@ -19,7 +19,7 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
     using SafeMath for uint;
 
     string public constant name = "Insurance Payment";
-    string public constant symbol = "INSUPAY";
+    string public constant symbol = "INSPAY";
     uint public constant decimals = 18;
 
     /// [Note]: Uniswap V1
@@ -36,7 +36,7 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
 
     uint public startTime;
     uint public nextMarketCapPollTime;
-    uint public lastStonkPrice;
+    uint public lastInsupayPrice;
 
     constructor(WETH9 _weth, IUniswapFactory _uniswapFactory, ConditionalTokens _conditionalTokens, FPMMDeterministicFactory _fpmmFactory) public {
         weth = _weth;
@@ -50,12 +50,16 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
      **/
     function setup() external payable {
         require(address(uniswapExchange) == address(0), "already setup");
+        /// Mint conditional tokens (ERC20)
+        _mint(address(this), START_AMOUNT);
+
+        /// Create exchange contract address of conditional tokens (ERC20)
         address payable exchange = uniswapFactory.createExchange(address(this));
 
-        _mint(address(this), START_AMOUNT);
+        /// Create Uniswap v1 pool (pair is Conditional tokens/ETH) by adding liquidity
         _approve(address(this), exchange, START_AMOUNT);
         IUniswapExchange(exchange).addLiquidity.value(msg.value)(0, START_AMOUNT, uint(-1));
-        lastStonkPrice = uint(1 ether).mul(exchange.balance) / balanceOf(exchange);
+        lastInsupayPrice = uint(1 ether).mul(exchange.balance) / balanceOf(exchange);
 
         uniswapExchange = IUniswapExchange(exchange);
         startTime = block.timestamp;
@@ -69,6 +73,7 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
     function claim(TransactionClaim calldata claim) external payable {
         bytes32 claimHash = keccak256(abi.encode(claim));
 
+        /// Check this claim (the TransactionClaim struct) is initialized or not
         require(
             claimedTransactions[claimHash] == FixedProductMarketMaker(0),
             "transaction already claimed"
@@ -84,6 +89,7 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
             "claim must have an epoch for deciding"
         );
 
+        /// Create a condition (condition ID)
         conditionalTokens.prepareCondition(address(this), claimHash, 2);
         bytes32 txConditionId = keccak256(abi.encodePacked(address(this), claimHash, uint(2)));
 
@@ -105,6 +111,7 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
         conditionIds[0] = pollConditionId;
         conditionIds[1] = txConditionId;
 
+        /// Create a prediction market for a condition above
         FixedProductMarketMaker fpmm = fpmmFactory.create2FixedProductMarketMaker(
             uint(bytes32("LAND OF ECODELIA")),
             conditionalTokens,
@@ -129,16 +136,20 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
 
 
     /***
-     * @notice - Judge whether it pay or do not pay
+     * @notice - Judge whether it doed insurance payment or do not insurance payment
      **/
     function payOrDoNotPay(TransactionClaim calldata claim) external payable {
+        /// Create a FixedProductMarketMaker instance by assigning a existing claim (the TransactionClaim struct)
         bytes32 claimHash = keccak256(abi.encode(claim));
 
         FixedProductMarketMaker fpmm = claimedTransactions[claimHash];
 
+        /// Check whether assigned claim is existing or not
         require(fpmm != FixedProductMarketMaker(0), "transaction missing");
 
         uint[] memory balances;
+
+        /// Define positions for this claim (In case of this claim, 4 positions are defined)
         {
             uint[] memory positionIds = new uint[](4);
             {
@@ -150,22 +161,25 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
                     2
                 );
 
-                // Yes Lo
+                /// Yes Lo
                 positionIds[0] = CTHelpers.getPositionId(IERC20(address(weth)), CTHelpers.getCollectionId(
                     CTHelpers.getCollectionId(bytes32(0), txConditionId, 1),
                     pollConditionId, 1
                 ));
-                // Yes Hi
+
+                /// Yes Hi
                 positionIds[1] = CTHelpers.getPositionId(IERC20(address(weth)), CTHelpers.getCollectionId(
                     CTHelpers.getCollectionId(bytes32(0), txConditionId, 1),
                     pollConditionId, 2
                 ));
-                // No Lo
+                
+                /// No Lo
                 positionIds[2] = CTHelpers.getPositionId(IERC20(address(weth)), CTHelpers.getCollectionId(
                     CTHelpers.getCollectionId(bytes32(0), txConditionId, 2),
                     pollConditionId, 1
                 ));
-                // No Hi
+                
+                /// No Hi
                 positionIds[3] = CTHelpers.getPositionId(IERC20(address(weth)), CTHelpers.getCollectionId(
                     CTHelpers.getCollectionId(bytes32(0), txConditionId, 2),
                     pollConditionId, 2
@@ -207,22 +221,23 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
 
     /***
      * @notice - Poke for result
+     * @notice - "Insupay" is the symbol of conditonal token (ERC20)
      **/
     function poke() external payable {
         uint[] memory payouts = new uint[](2);
         address exchange = address(uniswapExchange);
-        uint currentStonkPrice = uint(1 ether).mul(exchange.balance) / balanceOf(exchange);
-        uint loPrice = lastStonkPrice / 2;
-        uint hiPrice = loPrice.add(lastStonkPrice);
-        if (currentStonkPrice < loPrice) {
+        uint currentInsupayPrice = uint(1 ether).mul(exchange.balance) / balanceOf(exchange);
+        uint loPrice = lastInsupayPrice / 2;
+        uint hiPrice = loPrice.add(lastInsupayPrice);
+        if (currentInsupayPrice < loPrice) {
             payouts[0] = 1;
             payouts[1] = 0;
-        } else if (currentStonkPrice > hiPrice) {
+        } else if (currentInsupayPrice > hiPrice) {
             payouts[0] = 0;
             payouts[1] = 1;
         } else {
-            payouts[0] = hiPrice - currentStonkPrice;
-            payouts[1] = currentStonkPrice - loPrice;
+            payouts[0] = hiPrice - currentInsupayPrice;
+            payouts[1] = currentInsupayPrice - loPrice;
         }
 
         uint nextTime = nextMarketCapPollTime;
@@ -235,11 +250,11 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
             if (conditionalTokens.getOutcomeSlotCount(pollConditionId) > 0) {
                 conditionalTokens.reportPayouts(bytes32(nextTime), payouts);
             }
-            emit EpochPassed(nextTime, now, currentStonkPrice);
+            emit EpochPassed(nextTime, now, currentInsupayPrice);
             nextTime = nextTime.add(EPOCH_PERIOD);
         }
         nextMarketCapPollTime = nextTime;
-        lastStonkPrice = currentStonkPrice;
+        lastInsupayPrice = currentInsupayPrice;
     }
 
 
