@@ -35,7 +35,8 @@ main();
 async function claim() {  /// [Result]:
     /// [Note]: This is the TransactionClaim struct (value is empty)
     let txClaim = {
-        availableTime: 1607933818,                                                  /// [Note]: Current timestamp
+        availableTime: 1607934124921,                                                  /// [Note]: Current timestamp (unit: mili-second)
+        //availableTime: 1607934125,                                                  /// [Note]: Current timestamp (unit: second)
         to: "0x718E3ea0B8C2911C5e54Cb4b9B2075fdd87B55a7",                           /// [Note]: 
         value: web3.utils.toWei('0.1', 'ether'),                                    /// [Note]: 0.1
         data: "0x0000000000000000000000000000000000000000000000000000000000000000"  /// [Note]: Data type is bytes32
