@@ -59,7 +59,7 @@ async function claim() {
         data: "0x0000000000000000000000000000000000000000000000000000000000000000"  /// [Note]: Data type is bytes32
     }
 
-    const ethValue = await web3.utils.toHex(web3.utils.toWei('0', 'ether'));          /// 0 ETH
+    const ethValue = await web3.utils.toHex(web3.utils.toWei('0', 'ether'));        /// 0 ETH (msg.value)
 
     let inputData1 = await insurancePayment.methods.claim(txClaim).encodeABI();
     let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData1, ethValue);
@@ -70,13 +70,15 @@ async function claim() {
  * @notice - Buy insupay tokens (conditional tokens)
  **/
 async function buyInsupay() {
-    /// [Todo]: Check uniswap's exchange balance (Pool balance of Insupay/ETH)
-
-    /// Execute buyInsupay
     const insupayPurchaseAmount = await web3.utils.toHex(web3.utils.toWei('0.001', 'ether'));  /// 0.01 ETH
     const deadline = Math.floor(new Date().getTime() / 1000) + 600;                            /// Now + 10 minutes (600 sec)
     const ethOfferAmount = await web3.utils.toHex(web3.utils.toWei('0.01', 'ether'));          /// 0.01 ETH
 
+    /// [Todo]: Check uniswap's exchange balance (Pool balance of Insupay/ETH)
+    const ethSold = await insurancePayment.methods.getEthToTokenOutputPrice(insupayPurchaseAmount).call();
+    console.log('=== ethSold ===', ethSold);
+
+    /// Execute buyInsupay
     let inputData1 = await insurancePayment.methods.buyInsupay(insupayPurchaseAmount, deadline).encodeABI();
     let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData1, ethOfferAmount);
 }
