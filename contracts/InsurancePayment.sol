@@ -148,28 +148,29 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
 
 
     /***
-     * @notice - Buy INSUPAY tokens (=conditional tokens)
+     * @notice - Buy INSUPAY tokens (INSUPAY tokens is conditional tokens & ERC20 tokens)
+     * @param insupayPurchaseAmount - Minimum insupay tokens bought (insupay tokens is conditional tokens & ERC20 tokens) 
      * @param deadline - Transaction deadline
      **/
-    function buyInsupayToken(uint insupayPurchaseAmount, uint deadline) public payable returns (bool) {
-        /// [Note]: A user need to send ETH (Sent ETH amount is amount that they want to exchange) in advance
-        uint purchasedInsupayAmount = uniswapExchange.ethToTokenSwapInput(insupayPurchaseAmount, deadline);
+    // function buyInsupayToken(uint min_insupayPurchaseAmount, uint deadline) public payable returns (bool) {
+    //     /// [Note]: A user need to send ETH (Sent ETH amount is amount that they want to exchange) in advance
+    //     uint purchasedInsupayAmount = uniswapExchange.ethToTokenSwapInput(min_insupayPurchaseAmount, deadline);
 
-        /// Back insupay tokens to a user (msg.sender)
-        transfer(msg.sender, purchasedInsupayAmount);
-    }
+    //     /// Back insupay tokens to a user (msg.sender)
+    //     transfer(msg.sender, purchasedInsupayAmount);
+    // }
 
     /***
-     * @notice - Sell INSUPAY tokens (=conditional tokens)
-     * @param insupaySaleAmount - Minimum conditional tokens (ERC20 tokens) sold
+     * @notice - Sell INSUPAY tokens (INSUPAY tokens is conditional tokens & ERC20 tokens)
+     * @param insupaySaleAmount - Minimum insupay tokens sold
      * @param deadline - Transaction deadline
      **/
-    function sellInsupayToken(uint insupaySaleAmount, uint minEthAmount, uint deadline) public payable returns (bool) {
-        uint ethBought = uniswapExchange.tokenToEthSwapInput(insupaySaleAmount,  minEthAmount, deadline);
+    // function sellInsupayToken(uint min_insupaySaleAmount, uint minEthAmount, uint deadline) public payable returns (bool) {
+    //     uint ethBought = uniswapExchange.tokenToEthSwapInput(min_insupaySaleAmount,  minEthAmount, deadline);
 
-        /// Back ETH to a user (msg.sender)
-        msg.sender.transfer(ethBought);
-    }
+    //     /// Back ETH to a user (msg.sender)
+    //     msg.sender.transfer(ethBought);
+    // }
 
 
     /***

@@ -99,11 +99,21 @@ async function buyInsupayToken() {
     // const ethOfferAmount = await web3.utils.fromWei(ethSold, 'ether');
     // console.log('=== ethOfferAmount (ethSold) ===', ethOfferAmount);
 
-    const ethOfferAmount = '100000000000000000';  /// 0.1 ETH;
+    const ethOfferAmount = '10000000000000000';  /// 0.01 ETH;
+
+    /// Execute 
+    let IUniswapExchange = {};
+    IUniswapExchange = require("../../build/contracts/IUniswapExchange.json");
+    uniswapExchangeABI = IUniswapExchange.abi;
+    uniswapExchangeAddr = await insurancePayment.methods.exchange().call();
+    uniswapExchange = new web3.eth.Contract(uniswapExchangeABI, uniswapExchangeAddr);
+    console.log('=== uniswapExchange ===\n', uniswapExchange);
+    let inputData = await uniswapExchange.methods.ethToTokenSwapInput(insupayPurchaseAmount, deadline).encodeABI();
+    let transaction = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData, ethOfferAmount);   
 
     /// Execute buyInsupay
-    let inputData1 = await insurancePayment.methods.buyInsupayToken(insupayPurchaseAmount, deadline).encodeABI();
-    let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData1, ethOfferAmount);
+    // let inputData1 = await insurancePayment.methods.buyInsupayToken(insupayPurchaseAmount, deadline).encodeABI();
+    // let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData1, ethOfferAmount);
 }
 
 /***
