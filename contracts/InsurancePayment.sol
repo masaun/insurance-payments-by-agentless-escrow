@@ -81,12 +81,17 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
             "transaction already claimed"
         );
 
-        /// [Note]: Claim's available time must be same with start time.
+        /// [Note]: Claim's available time must be after start time.
         require(
-            claim.availableTime.sub(startTime, "claim time must be after") % EPOCH_PERIOD != 0,    /// [Note]: Fixed condition
-            //claim.availableTime.sub(startTime, "claim time must be after") % EPOCH_PERIOD == 0,  /// [Note]: Original condition
-            "claim available time must be aligned"
+            claim.availableTime.sub(startTime) != 0, 
+            "claim time must be after"
         );
+
+        /// [Note]: Original condtion
+        // require(
+        //     claim.availableTime.sub(startTime, "claim time must be after") % EPOCH_PERIOD == 0,
+        //     "claim available time must be aligned"
+        // );
 
         require(
             claim.availableTime > block.timestamp + EPOCH_PERIOD,

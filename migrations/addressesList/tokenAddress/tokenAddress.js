@@ -10,13 +10,13 @@ module.exports = {
     },
     "Goerli": {
         "General": {
-            "WETH9": "0xAB76E6eCeEeeFC6badC3682C3df472A54D172Bf4",                      /// Deployed by myself
+            "WETH9": "0xAB76E6eCeEeeFC6badC3682C3df472A54D172Bf4",              /// Deployed by myself
         },
         "Gnosis": {
-            "ConditionalTokens": "0x616aA3AEa2FB8acB066110e854De463132fF5ebb",          /// Deployed by myself
+            "ConditionalTokens": "0x616aA3AEa2FB8acB066110e854De463132fF5ebb",  /// Deployed by myself
         },
         "UniswapV1": {
-            "UNI_INSUPAY": "0x7f492D48b5829f27A63361fbF5c400012F9C1bB8"
+            "UNI_INSUPAY": "0x7f492D48b5829f27A63361fbF5c400012F9C1bB8"         /// Deployed by myself
         }
     }
 }
