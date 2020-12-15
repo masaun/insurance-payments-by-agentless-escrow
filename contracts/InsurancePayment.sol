@@ -148,16 +148,28 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
 
 
     /***
-     * @notice - Buy/Sell INSUPAY (=conditional tokens)
+     * @notice - Buy INSUPAY tokens (=conditional tokens)
      * @param insupayPurchaseAmount - Minimum conditional tokens (ERC20 tokens) bought
      * @param deadline - Transaction deadline
      **/
-    function buyInsupay(uint insupayPurchaseAmount, uint deadline) public payable returns (bool) {
-        /// [Note]: A user need to send ETH (Sent ETH amount is amount that they want to exchange)
+    function buyInsupayToken(uint insupayPurchaseAmount, uint deadline) public payable returns (bool) {
+        /// [Note]: A user need to send ETH (Sent ETH amount is amount that they want to exchange) in advance
         uint purchasedInsupayAmount = uniswapExchange.ethToTokenSwapInput(insupayPurchaseAmount, deadline);
 
         /// Back insupay tokens to a user (msg.sender)
         transfer(msg.sender, purchasedInsupayAmount);
+    }
+
+    /***
+     * @notice - Sell INSUPAY tokens (=conditional tokens)
+     * @param insupaySaleAmount - Minimum conditional tokens (ERC20 tokens) sold
+     * @param deadline - Transaction deadline
+     **/
+    function sellInsupayToken(uint insupaySaleAmount, uint minEthAmount, uint deadline) public payable returns (bool) {
+        uint ethBought = uniswapExchange.tokenToEthSwapInput(insupaySaleAmount,  minEthAmount, deadline);
+
+        /// Back ETH to a user (msg.sender)
+        msg.sender.transfer(ethBought);
     }
 
 

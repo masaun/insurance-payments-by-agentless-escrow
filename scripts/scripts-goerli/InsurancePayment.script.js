@@ -69,20 +69,39 @@ async function claim() {
 /***
  * @notice - Buy insupay tokens (conditional tokens)
  **/
-async function buyInsupay() {
+async function buyInsupayToken() {
     const insupayPurchaseAmount = await web3.utils.toHex(web3.utils.toWei('0.001', 'ether'));  /// 0.01 ETH
     const deadline = Math.floor(new Date().getTime() / 1000) + 600;                            /// Now + 10 minutes (600 sec)
 
-    /// [Todo]: Check uniswap's exchange balance (Pool balance of Insupay/ETH)
-    const ethSold = await insurancePayment.methods.getEthToTokenOutputPrice(insupayPurchaseAmount).call();
-    console.log('=== ethSold ===', ethSold);  /// Result: e.g. 1004013040121366
-
+    /// Get ethOfferAmount
+    const ethSold = await insurancePayment.methods.getEthToTokenOutputPrice(insupayPurchaseAmount).call();  /// Result: e.g. 1004013040121366
     const ethOfferAmount = await web3.utils.fromWei(ethSold, 'ether');
-    //const ethOfferAmount = ethSold;
+    console.log('=== ethOfferAmount (ethSold) ===', ethOfferAmount);
 
     /// Execute buyInsupay
-    let inputData1 = await insurancePayment.methods.buyInsupay(insupayPurchaseAmount, deadline).encodeABI();
+    let inputData1 = await insurancePayment.methods.buyInsupayToken(insupayPurchaseAmount, deadline).encodeABI();
     let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData1, ethOfferAmount);
+}
+
+/***
+ * @notice - Sell insupay tokens (conditional tokens)
+ **/
+async function sellInsupayToken() {
+    const insupaySaleAmount = await web3.utils.toHex(web3.utils.toWei('0.001', 'ether'));  /// 0.01 ETH
+    const deadline = Math.floor(new Date().getTime() / 1000) + 600;                            /// Now + 10 minutes (600 sec)
+
+    /// Get minEthAmount
+    const ethBought = await insurancePayment.methods.getTokenToEthInputPrice(insupaySaleAmount).call();
+    const minEthAmount = await web3.utils.fromWei(ethBought, 'ether');
+    console.log('=== minEthAmount (ethBought) ===', minEthAmount);  /// Result: e.g. 1004013040121366
+
+    /// Approve
+    let inputData1 = await insurancePayment.methods.approve(insurancePaymentAddr, insupaySaleAmount).encodeABI();
+    let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData1, ethOfferAmount);   
+
+    /// Execute sellInsupay
+    let inputData2 = await insurancePayment.methods.sellInsupayToken(insupaySaleAmount, minEthAmount, deadline).encodeABI();
+    let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData2, ethOfferAmount);
 }
 
 
