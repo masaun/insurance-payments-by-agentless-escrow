@@ -26,6 +26,7 @@ insurancePayment = new web3.eth.Contract(insurancePaymentABI, insurancePaymentAd
 async function main() {
     await getStartTime();
     await claim();
+    await getReserve();
     await buyInsupay();
 }
 main();
@@ -38,7 +39,7 @@ main();
 /***
  * @notice - Get start time
  **/
-async function getStartTime() {  /// [Result]:
+async function getStartTime() {
     /// Get start time
     let startTime = await insurancePayment.methods.startTime().call();
     console.log('=== startTime ===', startTime);
@@ -63,6 +64,15 @@ async function claim() {
 
     let inputData1 = await insurancePayment.methods.claim(txClaim).encodeABI();
     let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData1, ethValue);
+}
+
+
+/***
+ * @notice - Get reserve of insupayTokens/ETH
+ **/
+async function getReserve() {
+    let reserve = await insurancePayment.methods.getReserve().call();
+    console.log('=== reserve (insupayTokens/ETH) ===', reserve);
 }
 
 

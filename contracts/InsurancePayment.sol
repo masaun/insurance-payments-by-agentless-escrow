@@ -307,8 +307,16 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
     /// Getter methods
     ///------------------
 
-    function getEthToTokenOutputPrice(uint256 insupayBought) public view returns (uint256 ethSold) {
-        return IUniswapExchange(exchange).getEthToTokenOutputPrice(insupayBought);
+    function getEthToTokenOutputPrice(uint256 insupayBoughtAmount) public view returns (uint256 ethSoldAmount) {
+        return IUniswapExchange(exchange).getEthToTokenOutputPrice(insupayBoughtAmount);
+    }
+
+    function getTokenToEthInputPrice(uint256 insupaySaleAmount) public view returns (uint256 ethBoughtAmount) {
+        return IUniswapExchange(exchange).getTokenToEthInputPrice(insupaySaleAmount);
+    }
+
+    function getReserve() public view returns (uint256 reserve) {
+        
     }
     
 }
