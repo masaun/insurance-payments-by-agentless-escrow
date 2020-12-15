@@ -59,7 +59,7 @@ async function claim() {
         data: "0x0000000000000000000000000000000000000000000000000000000000000000"  /// [Note]: Data type is bytes32
     }
 
-    const ethValue = await web3.utils.toHex(web3.utils.toWei('0', 'ether'));        /// 0 ETH (msg.value)
+    const ethValue = '0';        /// 0 ETH (msg.value)
 
     let inputData1 = await insurancePayment.methods.claim(txClaim).encodeABI();
     let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData1, ethValue);
@@ -72,11 +72,13 @@ async function claim() {
 async function buyInsupay() {
     const insupayPurchaseAmount = await web3.utils.toHex(web3.utils.toWei('0.001', 'ether'));  /// 0.01 ETH
     const deadline = Math.floor(new Date().getTime() / 1000) + 600;                            /// Now + 10 minutes (600 sec)
-    const ethOfferAmount = await web3.utils.toHex(web3.utils.toWei('0.01', 'ether'));          /// 0.01 ETH
 
     /// [Todo]: Check uniswap's exchange balance (Pool balance of Insupay/ETH)
     const ethSold = await insurancePayment.methods.getEthToTokenOutputPrice(insupayPurchaseAmount).call();
-    console.log('=== ethSold ===', ethSold);
+    console.log('=== ethSold ===', ethSold);  /// Result: e.g. 1004013040121366
+
+    const ethOfferAmount = await web3.utils.fromWei(ethSold, 'ether');
+    //const ethOfferAmount = ethSold;
 
     /// Execute buyInsupay
     let inputData1 = await insurancePayment.methods.buyInsupay(insupayPurchaseAmount, deadline).encodeABI();
@@ -100,9 +102,10 @@ async function sendTransaction(walletAddress, privateKey, contractAddress, input
             to:       contractAddress,  /// Contract address which will be executed
             //value:    web3.utils.toHex(web3.utils.toWei('0.05', 'ether')),  /// [Note]: 0.05 ETH as a msg.value
             //value:    web3.utils.toHex(web3.utils.toWei('0', 'ether')),     /// [Note]: 0 ETH as a msg.value
-            value:    ethValue,
+            value:    web3.utils.toHex(web3.utils.toWei(ethValue, 'ether')),
             gasLimit: web3.utils.toHex(2100000),
-            gasPrice: web3.utils.toHex(web3.utils.toWei('100', 'gwei')),   /// [Note]: Gas Price is 100 Gwei 
+            gasPrice: web3.utils.toHex(web3.utils.toWei('10', 'gwei')),   /// [Note]: Gas Price is 10 Gwei 
+            //gasPrice: web3.utils.toHex(web3.utils.toWei('100', 'gwei')),   /// [Note]: Gas Price is 100 Gwei 
             data: inputData  
         }
         console.log('=== txObject ===', txObject)
