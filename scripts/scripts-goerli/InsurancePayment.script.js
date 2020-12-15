@@ -80,7 +80,7 @@ async function claim() {
  * @notice - Buy insupay tokens (conditional tokens)
  **/
 async function buyInsupayToken() {
-    const insupayPurchaseAmount = '10000000000000000';  /// 0.01 ETH
+    const insupayPurchaseAmount = '100000000000000000';  /// 0.1 ETH
     //const insupayPurchaseAmount = await web3.utils.toHex(web3.utils.toWei('0.001', 'ether'));  /// 0.01 ETH
     const deadline = Math.floor(new Date().getTime() / 1000) + 600;                              /// Now + 10 minutes (600 sec)
 
