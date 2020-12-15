@@ -31,7 +31,7 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
     FPMMDeterministicFactory public fpmmFactory;
     WETH9 public weth;
 
-    address payable exchange;                     /// [Note]: Pool (exchange) address between Insupay/ETH
+    address payable public exchange;              /// [Note]: Pool (exchange) address between InsupayToken/ETH
 
     uint constant START_AMOUNT = 100 ether;
     //uint public constant EPOCH_PERIOD = 86400;  /// [Note]: 1 day == 86400 second

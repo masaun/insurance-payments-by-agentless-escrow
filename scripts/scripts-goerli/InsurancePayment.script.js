@@ -25,6 +25,7 @@ insurancePayment = new web3.eth.Contract(insurancePaymentABI, insurancePaymentAd
  **/
 async function main() {
     await getStartTime();
+    await getExchangeContractAddress();
     await claim();
     //await getReserve();
     await buyInsupayToken();
@@ -43,6 +44,15 @@ async function getStartTime() {
     /// Get start time
     let startTime = await insurancePayment.methods.startTime().call();
     console.log('=== startTime ===', startTime);
+}
+
+
+/***
+ * @notice - Get exchange contract address (InsurancePaymentToken/ETH)
+ **/
+async function getExchangeContractAddress() {
+    let exchange = await insurancePayment.methods.exchange().call();
+    console.log('=== exchange contract address (InsurancePaymentToken/ETH) ===', exchange);
 }
 
 
