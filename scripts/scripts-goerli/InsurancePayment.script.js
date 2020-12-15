@@ -39,8 +39,8 @@ async function claim() {  /// [Result]:
 
     /// [Note]: This is the TransactionClaim struct (value is empty)
     let txClaim = {
-        availableTime: startTime,                              /// [Note]: Claim's available time must be same with start time.
-        //availableTime: 1608422400,                           /// [Note]: Future timestamp 12/20, 2020, UTC 0:00 am (unit: second)
+        //availableTime: startTime,                              /// [Note]: Claim's available time must be same with start time.
+        availableTime: 1608422400,                           /// [Note]: Future timestamp 12/20, 2020, UTC 0:00 am (unit: second)
         //availableTime: 1607950030,                           /// [Note]: Current timestamp (unit: second)
         to: "0x718E3ea0B8C2911C5e54Cb4b9B2075fdd87B55a7",                           /// [Note]: 
         value: web3.utils.toWei('0.1', 'ether'),                                    /// [Note]: 0.1
