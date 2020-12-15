@@ -50,7 +50,7 @@ async function getStartTime() {  /// [Result]:
  **/
 async function claim() {
     /// [Note]: "txClaim" is the TransactionClaim struct
-    let txClaim = {
+    const txClaim = {
         availableTime: 1608422400,                             /// [Note]: Future timestamp 12/20, 2020, UTC 0:00 am (unit: second)
         //availableTime: 1607950030,                           /// [Note]: Current timestamp (unit: second)
         //availableTime: startTime,                            /// [Note]: Claim's available time must be same with start time.
@@ -59,8 +59,10 @@ async function claim() {
         data: "0x0000000000000000000000000000000000000000000000000000000000000000"  /// [Note]: Data type is bytes32
     }
 
+    const ethValue = await web3.utils.toHex(web3.utils.toWei('0', 'ether'));          /// 0 ETH
+
     let inputData1 = await insurancePayment.methods.claim(txClaim).encodeABI();
-    let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData1, 0);
+    let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData1, ethValue);
 }
 
 
