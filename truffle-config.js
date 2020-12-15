@@ -35,8 +35,9 @@ module.exports = {
       provider: () => new HDWalletProvider(mnemonic, "https://goerli.infura.io/v3/" + process.env.INFURA_KEY),
       network_id: 5,
       gas: 7500000,
-      //gasPrice: 5000000000, // 5 gwei,
-      gasPrice: 100000000000,  // 100 gwei
+      //gasPrice: 5000000000,    /// 5 gwei,
+      gasPrice: 10000000000,     /// 10 gwei
+      //gasPrice: 100000000000,  /// 100 gwei
       skipDryRun: true,     // Skip dry run before migrations? (default: false for public nets)
       //from: process.env.DEPLOYER_ADDRESS
     },

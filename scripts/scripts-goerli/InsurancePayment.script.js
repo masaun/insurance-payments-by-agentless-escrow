@@ -90,8 +90,8 @@ async function claim() {
  * @notice - Buy insupay tokens (conditional tokens)
  **/
 async function buyInsupayToken() {
-    const insupayPurchaseAmount = '100000000000000000';  /// 0.1 ETH
-    //const insupayPurchaseAmount = await web3.utils.toHex(web3.utils.toWei('0.001', 'ether'));  /// 0.01 ETH
+    const insupayPurchaseAmount = '10000000000000000000';  /// 10 InsupayToken
+    //const insupayPurchaseAmount = await web3.utils.toHex(web3.utils.toWei('0.001', 'ether')); 
     const deadline = Math.floor(new Date().getTime() / 1000) + 600;                              /// Now + 10 minutes (600 sec)
 
     /// Get ethOfferAmount
@@ -99,10 +99,10 @@ async function buyInsupayToken() {
     // const ethOfferAmount = await web3.utils.fromWei(ethSold, 'ether');
     // console.log('=== ethOfferAmount (ethSold) ===', ethOfferAmount);
 
-    const ethOfferAmount = insupayPurchaseAmount;
+    const ethOfferAmount = '100000000000000000';  /// 0.1 ETH;
 
     /// Execute buyInsupay
-    let inputData1 = await insurancePayment.methods.buyInsupayToken(deadline).encodeABI();
+    let inputData1 = await insurancePayment.methods.buyInsupayToken(insupayPurchaseAmount, deadline).encodeABI();
     let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData1, ethOfferAmount);
 }
 
