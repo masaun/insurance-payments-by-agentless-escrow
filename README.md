@@ -22,16 +22,16 @@ $ npm install
 
 <br>
 
-### ② Compile & migrate contracts (on Kovan testnet)
+### ② Compile & migrate contracts (on Goerli testnet)
 ```
-$ npm run migrate:kovan
+$ npm run migrate:goerli
 ```
 
 <br>
 
 ### ③ Execute script (it's instead of testing)
 ```
-$ npm run script:kovan
+$ npm run script:goerli
 ```
 
 
