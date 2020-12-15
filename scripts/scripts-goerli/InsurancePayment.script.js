@@ -92,7 +92,7 @@ async function buyInsupayToken() {
     const ethOfferAmount = insupayPurchaseAmount;
 
     /// Execute buyInsupay
-    let inputData1 = await insurancePayment.methods.buyInsupayToken(insupayPurchaseAmount, deadline).encodeABI();
+    let inputData1 = await insurancePayment.methods.buyInsupayToken(deadline).encodeABI();
     let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData1, ethOfferAmount);
 }
 
