@@ -24,24 +24,35 @@ insurancePayment = new web3.eth.Contract(insurancePaymentABI, insurancePaymentAd
  * @notice - Execute all methods
  **/
 async function main() {
+    await getStartTime();
     await claim();
 }
 main();
 
 
-/*** 
- * @dev - Unit test
+///------------------------- 
+/// Unit test
+///-------------------------
+
+/***
+ * @notice - Get start time
  **/
-async function claim() {  /// [Result]:
+async function getStartTime() {  /// [Result]:
     /// Get start time
     let startTime = await insurancePayment.methods.startTime().call();
     console.log('=== startTime ===', startTime);
+}
 
-    /// [Note]: This is the TransactionClaim struct (value is empty)
+
+/***
+ * @notice - Claim a insurance payment
+ **/
+async function claim() {
+    /// [Note]: "txClaim" is the TransactionClaim struct
     let txClaim = {
-        //availableTime: startTime,                              /// [Note]: Claim's available time must be same with start time.
-        availableTime: 1608422400,                           /// [Note]: Future timestamp 12/20, 2020, UTC 0:00 am (unit: second)
+        availableTime: 1608422400,                             /// [Note]: Future timestamp 12/20, 2020, UTC 0:00 am (unit: second)
         //availableTime: 1607950030,                           /// [Note]: Current timestamp (unit: second)
+        //availableTime: startTime,                            /// [Note]: Claim's available time must be same with start time.
         to: "0x718E3ea0B8C2911C5e54Cb4b9B2075fdd87B55a7",                           /// [Note]: 
         value: web3.utils.toWei('0.1', 'ether'),                                    /// [Note]: 0.1
         data: "0x0000000000000000000000000000000000000000000000000000000000000000"  /// [Note]: Data type is bytes32

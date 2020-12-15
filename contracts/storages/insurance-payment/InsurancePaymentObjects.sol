@@ -8,7 +8,7 @@ contract InsurancePaymentObjects {
 
         address to;
         uint value;
-        bytes data;
+        bytes32 data;
     }
 
 }
