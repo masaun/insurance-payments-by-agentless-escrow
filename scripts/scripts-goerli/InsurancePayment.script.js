@@ -26,6 +26,7 @@ insurancePayment = new web3.eth.Contract(insurancePaymentABI, insurancePaymentAd
 async function main() {
     await getStartTime();
     await claim();
+    await buyInsupay();
 }
 main();
 
@@ -59,14 +60,27 @@ async function claim() {
     }
 
     let inputData1 = await insurancePayment.methods.claim(txClaim).encodeABI();
-    let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData1);
+    let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData1, 0);
+}
+
+
+/***
+ * @notice - Buy insupay tokens (conditional tokens)
+ **/
+async function buyInsupay() {
+    const insupayPurchaseAmount = await web3.utils.toHex(web3.utils.toWei('0.001', 'ether'));  /// 0.01 ETH
+    const deadline = Math.floor(this.now.getTime() / 1000) + 600;                              /// Now + 10 minutes (600 sec)
+    const ethOfferAmount = await web3.utils.toHex(web3.utils.toWei('0.01', 'ether'));          /// 0.01 ETH
+
+    let inputData1 = await insurancePayment.methods.buyInsupay().encodeABI();
+    let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData1, ethValue);
 }
 
 
 /***
  * @notice - Sign and Broadcast the transaction
  **/
-async function sendTransaction(walletAddress, privateKey, contractAddress, inputData) {
+async function sendTransaction(walletAddress, privateKey, contractAddress, inputData, ethValue) {
     try {
         const txCount = await web3.eth.getTransactionCount(walletAddress);
         const nonce = await web3.utils.toHex(txCount);
@@ -78,7 +92,8 @@ async function sendTransaction(walletAddress, privateKey, contractAddress, input
             from:     walletAddress,
             to:       contractAddress,  /// Contract address which will be executed
             //value:    web3.utils.toHex(web3.utils.toWei('0.05', 'ether')),  /// [Note]: 0.05 ETH as a msg.value
-            value:    web3.utils.toHex(web3.utils.toWei('0', 'ether')),       /// [Note]: 0 ETH as a msg.value
+            //value:    web3.utils.toHex(web3.utils.toWei('0', 'ether')),     /// [Note]: 0 ETH as a msg.value
+            value:    ethValue,
             gasLimit: web3.utils.toHex(2100000),
             gasPrice: web3.utils.toHex(web3.utils.toWei('100', 'gwei')),   /// [Note]: Gas Price is 100 Gwei 
             data: inputData  
