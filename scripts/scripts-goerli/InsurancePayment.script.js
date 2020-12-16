@@ -29,6 +29,7 @@ async function main() {
     await claim();
     //await getReserve();
     await buyInsupayToken();
+    await payOrDoNotPay();
 }
 main();
 
@@ -107,7 +108,6 @@ async function buyInsupayToken() {
     uniswapExchangeABI = IUniswapExchange.abi;
     uniswapExchangeAddr = await insurancePayment.methods.exchange().call();
     uniswapExchange = new web3.eth.Contract(uniswapExchangeABI, uniswapExchangeAddr);
-    console.log('=== uniswapExchange ===\n', uniswapExchange);
     let inputData = await uniswapExchange.methods.ethToTokenSwapInput(insupayPurchaseAmount, deadline).encodeABI();
     let transaction = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData, ethOfferAmount);   
 
@@ -135,6 +135,27 @@ async function sellInsupayToken() {
     /// Execute sellInsupay
     let inputData2 = await insurancePayment.methods.sellInsupayToken(insupaySaleAmount, minEthAmount, deadline).encodeABI();
     let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData2, ethOfferAmount);
+}
+
+
+/***
+ * @notice - Judge whether it doed insurance payment or do not insurance payment
+ **/
+async function payOrDoNotPay() {
+    /// [Note]: "txClaim" is the TransactionClaim struct
+    const txClaimed = {
+        availableTime: 1608422400,                             /// [Note]: Future timestamp 12/20, 2020, UTC 0:00 am (unit: second)
+        //availableTime: 1607950030,                           /// [Note]: Current timestamp (unit: second)
+        //availableTime: startTime,                            /// [Note]: Claim's available time must be same with start time.
+        to: "0x718E3ea0B8C2911C5e54Cb4b9B2075fdd87B55a7",                           /// [Note]: 
+        value: web3.utils.toWei('0.1', 'ether'),                                    /// [Note]: 0.1
+        data: "0x0000000000000000000000000000000000000000000000000000000000000000"  /// [Note]: Data type is bytes32
+    }
+
+    const ethValue = '0';        /// 0 ETH (msg.value)
+
+    let inputData1 = await insurancePayment.methods.payOrDoNotPay(txClaimed).encodeABI();
+    let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData1, ethValue);
 }
 
 
