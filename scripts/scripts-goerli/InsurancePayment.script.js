@@ -29,6 +29,7 @@ async function main() {
     await claim();
     //await getReserve();
     await buyInsupayToken();
+    //await sellInsupayToken();
     await payOrDoNotPay();
 }
 main();
@@ -127,9 +128,11 @@ async function sellInsupayToken() {
 
     /// Get minEthAmount
     const ethBought = '10000000000000000';  /// 0.01 ETH;
-    //const ethBought = await insurancePayment.methods.getTokenToEthInputPrice(insupaySaleAmount).call();
-    //const minEthAmount = await web3.utils.fromWei(ethBought, 'ether');
+    const minEthAmount = ethBought;
     //console.log('=== minEthAmount (ethBought) ===', minEthAmount);  /// Result: e.g. 1004013040121366
+
+    /// Declare the sended ETH amount (msg.value)
+    const ethValue = '0';        /// 0 ETH (msg.value)
 
     /// Create a UniswapExchange contract instance
     let IUniswapExchange = {};
@@ -140,11 +143,11 @@ async function sellInsupayToken() {
 
     /// Approve
     let inputData1 = await insurancePayment.methods.approve(uniswapExchangeAddr, insupaySaleAmount).encodeABI();
-    let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData1, ethBought);   
+    let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData1, ethValue);   
 
-    /// Execute sellInsupay
+    /// Execute sellInsupay (via UniswapExchange instance directly)
     let inputData2 = await uniswapExchange.methods.tokenToEthSwapInput(insupaySaleAmount, minEthAmount, deadline).encodeABI();
-    let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData2, ethBought);
+    let transaction2 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData2, ethValue);
 
     /// Approve
     // let inputData1 = await insurancePayment.methods.approve(insurancePaymentAddr, insupaySaleAmount).encodeABI();
@@ -152,7 +155,7 @@ async function sellInsupayToken() {
 
     /// Execute sellInsupay
     // let inputData2 = await insurancePayment.methods.sellInsupayToken(insupaySaleAmount, minEthAmount, deadline).encodeABI();
-    // let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData2, ethOfferAmount);
+    // let transaction2 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData2, ethOfferAmount);
 }
 
 
