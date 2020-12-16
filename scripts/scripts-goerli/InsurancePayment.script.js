@@ -25,8 +25,12 @@ insurancePayment = new web3.eth.Contract(insurancePaymentABI, insurancePaymentAd
  **/
 async function main() {
     await getStartTime();
+    await getExchangeContractAddress();
     await claim();
-    await buyInsupay();
+    //await getReserve();
+    await buyInsupayToken();
+    //await sellInsupayToken();
+    await payOrDoNotPay();
 }
 main();
 
@@ -38,10 +42,19 @@ main();
 /***
  * @notice - Get start time
  **/
-async function getStartTime() {  /// [Result]:
+async function getStartTime() {
     /// Get start time
     let startTime = await insurancePayment.methods.startTime().call();
     console.log('=== startTime ===', startTime);
+}
+
+
+/***
+ * @notice - Get exchange contract address (InsurancePaymentToken/ETH)
+ **/
+async function getExchangeContractAddress() {
+    let exchange = await insurancePayment.methods.exchange().call();
+    console.log('=== exchange contract address (InsurancePaymentToken/ETH) ===', exchange);
 }
 
 
@@ -67,20 +80,43 @@ async function claim() {
 
 
 /***
+ * @notice - Get reserve of insupayTokens/ETH
+ **/
+// async function getReserve() {
+//     let reserve = await insurancePayment.methods.getReserve().call();
+//     console.log('=== reserve (insupayTokens/ETH) ===', reserve);
+// }
+
+
+/***
  * @notice - Buy insupay tokens (conditional tokens)
  **/
 async function buyInsupayToken() {
-    const insupayPurchaseAmount = await web3.utils.toHex(web3.utils.toWei('0.001', 'ether'));  /// 0.01 ETH
-    const deadline = Math.floor(new Date().getTime() / 1000) + 600;                            /// Now + 10 minutes (600 sec)
+    const insupayPurchaseAmount = '10000000000000000000';  /// 10 InsupayToken
+    //const insupayPurchaseAmount = await web3.utils.toHex(web3.utils.toWei('0.001', 'ether')); 
+    const deadline = Math.floor(new Date().getTime() / 1000) + 600;                              /// Now + 10 minutes (600 sec)
 
     /// Get ethOfferAmount
-    const ethSold = await insurancePayment.methods.getEthToTokenOutputPrice(insupayPurchaseAmount).call();  /// Result: e.g. 1004013040121366
-    const ethOfferAmount = await web3.utils.fromWei(ethSold, 'ether');
-    console.log('=== ethOfferAmount (ethSold) ===', ethOfferAmount);
+    // const ethSold = await insurancePayment.methods.getEthToTokenOutputPrice(insupayPurchaseAmount).call();  /// Result: e.g. 1004013040121366
+    // const ethOfferAmount = await web3.utils.fromWei(ethSold, 'ether');
+    // console.log('=== ethOfferAmount (ethSold) ===', ethOfferAmount);
 
-    /// Execute buyInsupay
-    let inputData1 = await insurancePayment.methods.buyInsupayToken(insupayPurchaseAmount, deadline).encodeABI();
-    let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData1, ethOfferAmount);
+    const ethOfferAmount = '10000000000000000';  /// 0.01 ETH;
+
+    /// Create a UniswapExchange contract instance
+    let IUniswapExchange = {};
+    IUniswapExchange = require("../../build/contracts/IUniswapExchange.json");
+    uniswapExchangeABI = IUniswapExchange.abi;
+    uniswapExchangeAddr = await insurancePayment.methods.exchange().call();
+    uniswapExchange = new web3.eth.Contract(uniswapExchangeABI, uniswapExchangeAddr);  
+
+    /// Execute buyInsupay (via UniswapExchange instance directly)
+    let inputData = await uniswapExchange.methods.ethToTokenSwapInput(insupayPurchaseAmount, deadline).encodeABI();
+    let transaction = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData, ethOfferAmount);   
+
+    /// Execute buyInsupay (via InsurancePayment contract)
+    // let inputData1 = await insurancePayment.methods.buyInsupayToken(insupayPurchaseAmount, deadline).encodeABI();
+    // let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData1, ethOfferAmount);
 }
 
 /***
@@ -88,20 +124,59 @@ async function buyInsupayToken() {
  **/
 async function sellInsupayToken() {
     const insupaySaleAmount = await web3.utils.toHex(web3.utils.toWei('0.001', 'ether'));  /// 0.01 ETH
-    const deadline = Math.floor(new Date().getTime() / 1000) + 600;                            /// Now + 10 minutes (600 sec)
+    const deadline = Math.floor(new Date().getTime() / 1000) + 600;                        /// Now + 10 minutes (600 sec)
 
     /// Get minEthAmount
-    const ethBought = await insurancePayment.methods.getTokenToEthInputPrice(insupaySaleAmount).call();
-    const minEthAmount = await web3.utils.fromWei(ethBought, 'ether');
-    console.log('=== minEthAmount (ethBought) ===', minEthAmount);  /// Result: e.g. 1004013040121366
+    const ethBought = '10000000000000000';  /// 0.01 ETH;
+    const minEthAmount = ethBought;
+    //console.log('=== minEthAmount (ethBought) ===', minEthAmount);  /// Result: e.g. 1004013040121366
+
+    /// Declare the sended ETH amount (msg.value)
+    const ethValue = '0';        /// 0 ETH (msg.value)
+
+    /// Create a UniswapExchange contract instance
+    let IUniswapExchange = {};
+    IUniswapExchange = require("../../build/contracts/IUniswapExchange.json");
+    uniswapExchangeABI = IUniswapExchange.abi;
+    uniswapExchangeAddr = await insurancePayment.methods.exchange().call();
+    uniswapExchange = new web3.eth.Contract(uniswapExchangeABI, uniswapExchangeAddr);    
 
     /// Approve
-    let inputData1 = await insurancePayment.methods.approve(insurancePaymentAddr, insupaySaleAmount).encodeABI();
-    let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData1, ethOfferAmount);   
+    let inputData1 = await insurancePayment.methods.approve(uniswapExchangeAddr, insupaySaleAmount).encodeABI();
+    let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData1, ethValue);   
+
+    /// Execute sellInsupay (via UniswapExchange instance directly)
+    let inputData2 = await uniswapExchange.methods.tokenToEthSwapInput(insupaySaleAmount, minEthAmount, deadline).encodeABI();
+    let transaction2 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData2, ethValue);
+
+    /// Approve
+    // let inputData1 = await insurancePayment.methods.approve(insurancePaymentAddr, insupaySaleAmount).encodeABI();
+    // let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData1, ethOfferAmount);   
 
     /// Execute sellInsupay
-    let inputData2 = await insurancePayment.methods.sellInsupayToken(insupaySaleAmount, minEthAmount, deadline).encodeABI();
-    let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData2, ethOfferAmount);
+    // let inputData2 = await insurancePayment.methods.sellInsupayToken(insupaySaleAmount, minEthAmount, deadline).encodeABI();
+    // let transaction2 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData2, ethOfferAmount);
+}
+
+
+/***
+ * @notice - Judge whether it doed insurance payment or do not insurance payment
+ **/
+async function payOrDoNotPay() {
+    /// [Note]: "txClaim" is the TransactionClaim struct
+    const txClaimed = {
+        availableTime: 1608422400,                             /// [Note]: Future timestamp 12/20, 2020, UTC 0:00 am (unit: second)
+        //availableTime: 1607950030,                           /// [Note]: Current timestamp (unit: second)
+        //availableTime: startTime,                            /// [Note]: Claim's available time must be same with start time.
+        to: "0x718E3ea0B8C2911C5e54Cb4b9B2075fdd87B55a7",                           /// [Note]: 
+        value: web3.utils.toWei('0.1', 'ether'),                                    /// [Note]: 0.1
+        data: "0x0000000000000000000000000000000000000000000000000000000000000000"  /// [Note]: Data type is bytes32
+    }
+
+    const ethValue = '0';        /// 0 ETH (msg.value)
+
+    let inputData1 = await insurancePayment.methods.payOrDoNotPay(txClaimed).encodeABI();
+    let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData1, ethValue);
 }
 
 
@@ -121,7 +196,7 @@ async function sendTransaction(walletAddress, privateKey, contractAddress, input
             to:       contractAddress,  /// Contract address which will be executed
             //value:    web3.utils.toHex(web3.utils.toWei('0.05', 'ether')),  /// [Note]: 0.05 ETH as a msg.value
             //value:    web3.utils.toHex(web3.utils.toWei('0', 'ether')),     /// [Note]: 0 ETH as a msg.value
-            value:    web3.utils.toHex(web3.utils.toWei(ethValue, 'ether')),
+            value:    web3.utils.toHex(web3.utils.toWei(ethValue, 'wei')),
             gasLimit: web3.utils.toHex(2100000),
             gasPrice: web3.utils.toHex(web3.utils.toWei('10', 'gwei')),   /// [Note]: Gas Price is 10 Gwei 
             //gasPrice: web3.utils.toHex(web3.utils.toWei('100', 'gwei')),   /// [Note]: Gas Price is 100 Gwei 

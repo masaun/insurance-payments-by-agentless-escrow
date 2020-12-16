@@ -19,7 +19,7 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
     using SafeMath for uint;
 
     /// [Note]: A conditionl token data (as an ERC20 token)
-    string public constant name = "Insurance Payment";
+    string public constant name = "Insurance Payment Token";
     string public constant symbol = "INSUPAY";
     uint public constant decimals = 18;
 
@@ -31,9 +31,9 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
     FPMMDeterministicFactory public fpmmFactory;
     WETH9 public weth;
 
-    address payable exchange;                     /// [Note]: Pool (exchange) address between Insupay/ETH
+    address payable public exchange;              /// [Note]: Pool (exchange) address between InsupayToken/ETH
 
-    uint constant START_AMOUNT = 1 ether;
+    uint constant START_AMOUNT = 100 ether;
     //uint public constant EPOCH_PERIOD = 86400;  /// [Note]: 1 day == 86400 second
     uint public constant EPOCH_PERIOD = 10;       /// [Note]: 10 second    
     uint constant FPMM_FEE = 0.01 ether;
@@ -148,29 +148,29 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
 
 
     /***
-     * @notice - Buy INSUPAY tokens (=conditional tokens)
-     * @param insupayPurchaseAmount - Minimum conditional tokens (ERC20 tokens) bought
+     * @notice - Buy INSUPAY tokens (INSUPAY tokens is conditional tokens & ERC20 tokens)
+     * @param insupayPurchaseAmount - Minimum insupay tokens bought (insupay tokens is conditional tokens & ERC20 tokens) 
      * @param deadline - Transaction deadline
      **/
-    function buyInsupayToken(uint insupayPurchaseAmount, uint deadline) public payable returns (bool) {
-        /// [Note]: A user need to send ETH (Sent ETH amount is amount that they want to exchange) in advance
-        uint purchasedInsupayAmount = uniswapExchange.ethToTokenSwapInput(insupayPurchaseAmount, deadline);
+    // function buyInsupayToken(uint min_insupayPurchaseAmount, uint deadline) public payable returns (bool) {
+    //     /// [Note]: A user need to send ETH (Sent ETH amount is amount that they want to exchange) in advance
+    //     uint purchasedInsupayAmount = uniswapExchange.ethToTokenSwapInput(min_insupayPurchaseAmount, deadline);
 
-        /// Back insupay tokens to a user (msg.sender)
-        transfer(msg.sender, purchasedInsupayAmount);
-    }
+    //     /// Back insupay tokens to a user (msg.sender)
+    //     transfer(msg.sender, purchasedInsupayAmount);
+    // }
 
     /***
-     * @notice - Sell INSUPAY tokens (=conditional tokens)
-     * @param insupaySaleAmount - Minimum conditional tokens (ERC20 tokens) sold
+     * @notice - Sell INSUPAY tokens (INSUPAY tokens is conditional tokens & ERC20 tokens)
+     * @param insupaySaleAmount - Minimum insupay tokens sold
      * @param deadline - Transaction deadline
      **/
-    function sellInsupayToken(uint insupaySaleAmount, uint minEthAmount, uint deadline) public payable returns (bool) {
-        uint ethBought = uniswapExchange.tokenToEthSwapInput(insupaySaleAmount,  minEthAmount, deadline);
+    // function sellInsupayToken(uint min_insupaySaleAmount, uint minEthAmount, uint deadline) public payable returns (bool) {
+    //     uint ethBought = uniswapExchange.tokenToEthSwapInput(min_insupaySaleAmount,  minEthAmount, deadline);
 
-        /// Back ETH to a user (msg.sender)
-        msg.sender.transfer(ethBought);
-    }
+    //     /// Back ETH to a user (msg.sender)
+    //     msg.sender.transfer(ethBought);
+    // }
 
 
     /***
@@ -307,8 +307,16 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
     /// Getter methods
     ///------------------
 
-    function getEthToTokenOutputPrice(uint256 insupayBought) public view returns (uint256 ethSold) {
-        return IUniswapExchange(exchange).getEthToTokenOutputPrice(insupayBought);
+    function getEthToTokenOutputPrice(uint256 insupayBoughtAmount) public view returns (uint256 ethSoldAmount) {
+        return IUniswapExchange(exchange).getEthToTokenOutputPrice(insupayBoughtAmount);
+    }
+
+    function getTokenToEthInputPrice(uint256 insupaySaleAmount) public view returns (uint256 ethBoughtAmount) {
+        return IUniswapExchange(exchange).getTokenToEthInputPrice(insupaySaleAmount);
+    }
+
+    function getReserve() public view returns (uint256 reserve) {
+        
     }
     
 }
