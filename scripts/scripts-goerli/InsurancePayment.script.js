@@ -102,16 +102,18 @@ async function buyInsupayToken() {
 
     const ethOfferAmount = '10000000000000000';  /// 0.01 ETH;
 
-    /// Execute 
+    /// Create a UniswapExchange contract instance
     let IUniswapExchange = {};
     IUniswapExchange = require("../../build/contracts/IUniswapExchange.json");
     uniswapExchangeABI = IUniswapExchange.abi;
     uniswapExchangeAddr = await insurancePayment.methods.exchange().call();
-    uniswapExchange = new web3.eth.Contract(uniswapExchangeABI, uniswapExchangeAddr);
+    uniswapExchange = new web3.eth.Contract(uniswapExchangeABI, uniswapExchangeAddr);  
+
+    /// Execute buyInsupay (via UniswapExchange instance directly)
     let inputData = await uniswapExchange.methods.ethToTokenSwapInput(insupayPurchaseAmount, deadline).encodeABI();
     let transaction = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData, ethOfferAmount);   
 
-    /// Execute buyInsupay
+    /// Execute buyInsupay (via InsurancePayment contract)
     // let inputData1 = await insurancePayment.methods.buyInsupayToken(insupayPurchaseAmount, deadline).encodeABI();
     // let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData1, ethOfferAmount);
 }
@@ -124,17 +126,33 @@ async function sellInsupayToken() {
     const deadline = Math.floor(new Date().getTime() / 1000) + 600;                        /// Now + 10 minutes (600 sec)
 
     /// Get minEthAmount
-    const ethBought = await insurancePayment.methods.getTokenToEthInputPrice(insupaySaleAmount).call();
-    const minEthAmount = await web3.utils.fromWei(ethBought, 'ether');
-    console.log('=== minEthAmount (ethBought) ===', minEthAmount);  /// Result: e.g. 1004013040121366
+    const ethBought = '10000000000000000';  /// 0.01 ETH;
+    //const ethBought = await insurancePayment.methods.getTokenToEthInputPrice(insupaySaleAmount).call();
+    //const minEthAmount = await web3.utils.fromWei(ethBought, 'ether');
+    //console.log('=== minEthAmount (ethBought) ===', minEthAmount);  /// Result: e.g. 1004013040121366
+
+    /// Create a UniswapExchange contract instance
+    let IUniswapExchange = {};
+    IUniswapExchange = require("../../build/contracts/IUniswapExchange.json");
+    uniswapExchangeABI = IUniswapExchange.abi;
+    uniswapExchangeAddr = await insurancePayment.methods.exchange().call();
+    uniswapExchange = new web3.eth.Contract(uniswapExchangeABI, uniswapExchangeAddr);    
 
     /// Approve
-    let inputData1 = await insurancePayment.methods.approve(insurancePaymentAddr, insupaySaleAmount).encodeABI();
-    let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData1, ethOfferAmount);   
+    let inputData1 = await insurancePayment.methods.approve(uniswapExchangeAddr, insupaySaleAmount).encodeABI();
+    let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData1, ethBought);   
 
     /// Execute sellInsupay
-    let inputData2 = await insurancePayment.methods.sellInsupayToken(insupaySaleAmount, minEthAmount, deadline).encodeABI();
-    let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData2, ethOfferAmount);
+    let inputData2 = await uniswapExchange.methods.tokenToEthSwapInput(insupaySaleAmount, minEthAmount, deadline).encodeABI();
+    let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData2, ethBought);
+
+    /// Approve
+    // let inputData1 = await insurancePayment.methods.approve(insurancePaymentAddr, insupaySaleAmount).encodeABI();
+    // let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData1, ethOfferAmount);   
+
+    /// Execute sellInsupay
+    // let inputData2 = await insurancePayment.methods.sellInsupayToken(insupaySaleAmount, minEthAmount, deadline).encodeABI();
+    // let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData2, ethOfferAmount);
 }
 
 
