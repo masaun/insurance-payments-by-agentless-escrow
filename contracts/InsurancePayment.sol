@@ -258,7 +258,7 @@ contract InsurancePayment is ERC20, InsurancePaymentStorages, InsurancePaymentEv
 
 
     /***
-     * @notice - Poke for result
+     * @notice - Poke for result and get a insurance payout
      * @notice - "Insupay" is the symbol of conditonal token (ERC20)
      **/
     function poke() external payable {
