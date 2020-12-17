@@ -1,6 +1,4 @@
 # Insurance Payments by Agentless Escrow
-
-***
 ## 【Introduction of Insurance Payments by Agentless Escrow】
 - This is a smart contract for insurance payments in which the outcome trigger would be the event.
 
