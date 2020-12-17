@@ -31,6 +31,7 @@ async function main() {
     await buyInsupayToken();
     //await sellInsupayToken();
     await payOrDoNotPay();
+    await poke();
 }
 main();
 
@@ -76,6 +77,8 @@ async function claim() {
 
     let inputData1 = await insurancePayment.methods.claim(txClaim).encodeABI();
     let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData1, ethValue);
+
+    console.log('=== Claim was sent ===\n\n\n');
 }
 
 
@@ -117,6 +120,8 @@ async function buyInsupayToken() {
     /// Execute buyInsupay (via InsurancePayment contract)
     // let inputData1 = await insurancePayment.methods.buyInsupayToken(insupayPurchaseAmount, deadline).encodeABI();
     // let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData1, ethOfferAmount);
+
+    console.log('=== A user bought insurance payment tokens (conditional tokens) ===\n\n\n');
 }
 
 /***
@@ -177,6 +182,21 @@ async function payOrDoNotPay() {
 
     let inputData1 = await insurancePayment.methods.payOrDoNotPay(txClaimed).encodeABI();
     let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData1, ethValue);
+
+    console.log('=== Judged whether insurance payment is paid or is not paid ===\n\n\n');
+}
+
+
+/***
+ * @notice - Poke for result and receive insurance payout
+ **/
+async function poke() {
+    const ethValue = '0';        /// 0 ETH (msg.value)
+
+    let inputData1 = await insurancePayment.methods.poke().encodeABI();
+    let transaction1 = await sendTransaction(walletAddress1, privateKey1, insurancePaymentAddr, inputData1, ethValue);
+
+    console.log('=== Receive insurance payout by poke ===\n\n\n');
 }
 
 
