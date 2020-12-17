@@ -1,14 +1,8 @@
-# insurance-payments-by-agentless-escrow
+# Insurance Payments by Agentless Escrow
 
 ***
-## 【Introduction ofinsurance-payments-by-agentless-escrow】
-- This is a smart contract for ...
-
-&nbsp;
-
-***
-
-## 【Workflow】
+## 【Introduction of Insurance Payments by Agentless Escrow】
+- This is a smart contract for insurance payments in which the outcome trigger would be the event.
 
 &nbsp;
 
@@ -40,6 +34,17 @@ $ npm run script:goerli
 ***
 
 ## 【References】
-- Gnosis 
-  - Prize：https://gitcoin.co/issue/gnosis/conditional-tokens-docs/28/100024318
-  - Example Repo: https://github.com/cag/d-corp
+- Gnosis / Conditional Token
+  - Doc:  
+    https://docs.gnosis.io/conditionaltokens/docs/ctftutorial01/
+
+  - Example Repo (d-Corp): 
+    https://github.com/cag/d-corp
+
+  - GR8 bounty：  
+    https://gitcoin.co/issue/gnosis/conditional-tokens-docs/28/100024318
+
+  - Workshop:
+    - Conditional Tokens Tutorial：https://www.youtube.com/watch?v=uZNWq07Y4Ag&feature=emb_logo
+    - ETHOnline：https://www.youtube.com/watch?v=D42sEEtzt08
+
